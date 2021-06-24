@@ -1,8 +1,13 @@
 import discord
 import random
 from discord.ext import commands
+import os
 
-BALL_INSPECTOR_TOKEN = 'NzYyMDUxNjYxMTIwMDEyMjg4.X3jh6g.ieHlqN2ixewNYeED4i-Do4KnBmE'
+BALL_INSPECTOR_TOKEN = ''
+if os.path.isfile('home/pi/discord-token.txt'):
+    txt_file = open('/home/pi/discord-token.txt', 'r')
+    BALL_INSPECTOR_TOKEN = txt_file.read()
+    txt_file.close()
 
 bot = commands.Bot(command_prefix='.')
 
@@ -12,6 +17,7 @@ async def on_ready():
 
 @bot.event
 async def on_message(ctx):
+    await bot.process_commands(ctx)
     if (ctx.author == bot.user):
         return
     if (ctx.content.lower().startswith('hey')):
@@ -25,7 +31,6 @@ async def on_join(user, ctx):
 
 @bot.command()
 async def test(ctx, *, arg):
-    print('this workie')
     await ctx.channel.send(arg)
 
 bot.run(BALL_INSPECTOR_TOKEN)
