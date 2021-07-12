@@ -3,11 +3,14 @@ import random
 from discord.ext import commands
 import youtube_dl
 import os
+from glob import glob
 
-if os.path.isfile('home/pi/discord-token.txt'):
+
+if os.path.isfile('/home/pi/discord-token.txt'):
     txt_file = open('/home/pi/discord-token.txt', 'r')
     BALL_INSPECTOR_TOKEN = txt_file.read()
     txt_file.close()
+COGS = [path.split('\\')[-1][:-3] for path in glob('./cogs/*.py')]
 
 bot = commands.Bot(command_prefix='.')
 
@@ -34,7 +37,6 @@ async def on_join(member):
 @bot.command()
 async def join(ctx):
     channel = ctx.author.voice.channel
-    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
     await channel.connect()
     await ctx.channel.send('joined **{0}** successfully'.format(channel))
 
@@ -47,6 +49,7 @@ async def play(ctx, url: str):
     except PermissionError:
         await ctx.send('wait for the music to finish or use the **stop** command')
     await join(ctx)
+    voice = discord.utils.get(bot.voice_clients, guild=ctx.guild)
     ydl_opts = {
             'format': 'bestaudio/best',
             'postprocessors': [{
@@ -59,8 +62,8 @@ async def play(ctx, url: str):
         ydl.download([url])
     for file in os.listdir('./'):
         if file.endswith('.mp3'):
-            os.rename('song.mp3')
-    voice.play(discord.FFmpegPCMAudio('song.mp3')
+            os.rename(file, 'song.mp3')
+    voice.play(discord.FFmpegPCMAudio('song.mp3'))
 
 @bot.command()
 async def pause(ctx):
